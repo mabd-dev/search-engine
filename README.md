@@ -12,3 +12,9 @@ Join me in my journey of learning and creating **text-based** search engine from
 
 
 
+
+### How to run
+1. clone the repo
+2. `cd` into it
+3. run `go run . --path="<path to dir/file>"`
+
