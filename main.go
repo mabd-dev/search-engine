@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"strings"
 
@@ -8,9 +9,17 @@ import (
 )
 
 func main() {
+	var path string
+	flag.StringVar(&path, "path", "", "Folder/file path to index")
+	flag.Parse()
+
+	if len(strings.TrimSpace(path)) == 0 {
+		panic("Path is invalid")
+	}
+
 	searchEngine := engine.NewEngine()
 
-	err := searchEngine.Index("/Users/mabd/Documents/mind-map/Books/")
+	err := searchEngine.Index(path)
 	if err != nil {
 		panic(err)
 	}
