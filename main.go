@@ -37,14 +37,26 @@ func main() {
 		postings := searchEngine.GetPostings(token)
 
 		if len(postings) > 0 {
-			fmt.Printf("\033[32m%s\033[0m exists in %d document(s)\n", token, len(postings))
+			fmt.Printf("%s exists in %s document(s)\n", colorText(token), colorInt(len(postings)))
 
 			for _, posting := range postings {
-				fmt.Printf("  docID=%d freq=%d\n", posting.DocID, posting.Frequency)
+				doc, err := searchEngine.GetDocument(posting.DocID)
+				if err != nil {
+					continue
+				}
+				fmt.Printf("  docID=%s freq=%s path=%s\n", colorInt(posting.DocID), colorInt(posting.Frequency), colorText(doc.Path))
 			}
 		} else {
 			fmt.Println("Not found")
 		}
 	}
 
+}
+
+func colorText(s string) string {
+	return fmt.Sprintf("\033[32m%s\033[0m", s)
+}
+
+func colorInt(i int) string {
+	return fmt.Sprintf("\033[32m%d\033[0m", i)
 }

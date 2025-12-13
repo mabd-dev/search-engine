@@ -120,6 +120,14 @@ func (e SearchEngine) GetIndexedDocumentsCount() int {
 	return len(e.index.docs)
 }
 
+func (e SearchEngine) GetDocument(id int) (Document, error) {
+	doc, found := e.index.docs[id]
+	if !found {
+		return Document{}, fmt.Errorf("Document not found")
+	}
+	return doc, nil
+}
+
 func (e SearchEngine) GetPostings(token string) []Posting {
 	postings := e.index.postings[strings.ToLower(token)]
 	return postings
