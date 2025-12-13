@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/mabd-dev/search-engine/internal/engine"
@@ -19,40 +21,30 @@ func main() {
 
 	searchEngine := engine.NewEngine()
 
+	fmt.Println("Indexing...")
 	err := searchEngine.Index(path)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("Indexd %d documents\n", searchEngine.GetIndexedDocumentsCount())
 
-	// searchEngine.PrintAllIndexedDocuments()
+	input := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Print("search query: ")
+		input.Scan()
 
-	// err := searchEngine.Index("/Users/mabd/Documents/mind-map/Books/Introduction to Information Retrievals.md")
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// err = searchEngine.Index("/Users/mabd/Documents/mind-map/Books/testing.md")
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	tokens := []string{
-		"document",
-		"shit",
-		"it",
-	}
-
-	for _, token := range tokens {
+		token := input.Text()
 		postings := searchEngine.GetPostings(token)
-		printPostings(token, postings)
+
+		if len(postings) > 0 {
+			fmt.Printf("\033[32m%s\033[0m exists in %d document(s)\n", token, len(postings))
+
+			for _, posting := range postings {
+				fmt.Printf("  docID=%d freq=%d\n", posting.DocID, posting.Frequency)
+			}
+		} else {
+			fmt.Println("Not found")
+		}
 	}
 
-}
-
-func printPostings(token string, postings []engine.Posting) {
-	fmt.Printf("\033[32m%s\033[0m exists in %d document(s)\n", token, len(postings))
-	for _, posting := range postings {
-		fmt.Printf("  docID=%d freq=%d\n", posting.DocID, posting.Frequency)
-	}
-	fmt.Println(strings.Repeat(" ̶", 30))
 }
