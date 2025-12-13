@@ -110,6 +110,10 @@ func removeDuplicates(tokens []string) []string {
 	return uniqueTokens
 }
 
+func (e SearchEngine) GetIndexedDocumentsCount() int {
+	return len(e.index.docs)
+}
+
 func (e SearchEngine) GetPostings(token string) []Posting {
 	postings := e.index.postings[strings.ToLower(token)]
 	return postings
