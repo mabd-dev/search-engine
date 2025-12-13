@@ -4,7 +4,6 @@ Join me in my journey of learning and creating **text-based** search engine from
 
 
 ### Articles
-| branch| article|
 
 | Branch | Article |
 |----------|----------|
