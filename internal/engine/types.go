@@ -19,4 +19,6 @@ type Index struct {
 
 type SearchEngine struct {
 	index Index
+
+	tokenizer Tokenizer
 }

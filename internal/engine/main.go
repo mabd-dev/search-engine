@@ -66,8 +66,7 @@ func (e SearchEngine) indexDocument(doc Document) error {
 		return err
 	}
 	content := decodeFileContent(bytes, doc.FileExtension)
-	tokens := tokenize(content)
-	tokens = linguisticPreprocessing(tokens)
+	tokens := e.tokenizer.Tokenize(content)
 	tokensFreq := getTokensFrequencies(tokens)
 
 	for token, freq := range tokensFreq {
@@ -79,25 +78,6 @@ func (e SearchEngine) indexDocument(doc Document) error {
 	}
 
 	return nil
-}
-
-// tokenizeDocumentContent takes document content and split into tokens
-func tokenize(s string) []string {
-	return strings.Fields(s)
-}
-
-// linguisticPreprocessing removes token leading+trailing symbols and punctuations
-func linguisticPreprocessing(tokens []string) []string {
-	newTokens := []string{}
-
-	for _, token := range tokens {
-		cleanedToken := cleanToken(strings.ToLower(token))
-		if len(cleanedToken) > 0 {
-			newTokens = append(newTokens, cleanedToken)
-		}
-	}
-
-	return newTokens
 }
 
 func cleanToken(word string) string {
@@ -128,8 +108,8 @@ func (e SearchEngine) GetDocument(id int) (Document, error) {
 	return doc, nil
 }
 
-func (e SearchEngine) GetPostings(token string) []Posting {
-	postings := e.index.postings[strings.ToLower(token)]
+func (e SearchEngine) GetPostings(term string) []Posting {
+	postings := e.index.postings[strings.ToLower(term)]
 	return postings
 }
 
