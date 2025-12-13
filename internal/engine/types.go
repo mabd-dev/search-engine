@@ -8,7 +8,8 @@ type Document struct {
 }
 
 type Posting struct {
-	DocID int
+	DocID     int
+	Frequency int
 }
 
 type Index struct {

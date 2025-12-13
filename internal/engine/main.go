@@ -66,21 +66,23 @@ func (e SearchEngine) indexDocument(doc Document) error {
 		return err
 	}
 	content := decodeFileContent(bytes, doc.FileExtension)
-	tokens := tokenizeDocumentContent(content)
+	tokens := tokenize(content)
 	tokens = linguisticPreprocessing(tokens)
-	tokens = removeDuplicates(tokens)
+	tokensFreq := getTokensFrequencies(tokens)
 
-	for _, token := range tokens {
-		postings := e.index.postings[token]
-		postings = append(postings, Posting{DocID: doc.ID})
-		e.index.postings[token] = postings
+	for token, freq := range tokensFreq {
+		posting := Posting{
+			DocID:     doc.ID,
+			Frequency: freq,
+		}
+		e.index.postings[token] = append(e.index.postings[token], posting)
 	}
 
 	return nil
 }
 
 // tokenizeDocumentContent takes document content and split into tokens
-func tokenizeDocumentContent(s string) []string {
+func tokenize(s string) []string {
 	return strings.Fields(s)
 }
 
@@ -104,20 +106,14 @@ func cleanToken(word string) string {
 	})
 }
 
-func removeDuplicates(tokens []string) []string {
-	set := map[string]struct{}{}
+func getTokensFrequencies(tokens []string) map[string]int {
+	frequencies := map[string]int{}
 
 	for _, token := range tokens {
-		if _, exist := set[token]; !exist {
-			set[token] = struct{}{}
-		}
+		prevFreq := frequencies[token]
+		frequencies[token] = prevFreq + 1
 	}
-
-	uniqueTokens := []string{}
-	for token := range set {
-		uniqueTokens = append(uniqueTokens, token)
-	}
-	return uniqueTokens
+	return frequencies
 }
 
 func (e SearchEngine) GetPostings(token string) []Posting {
@@ -128,7 +124,7 @@ func (e SearchEngine) GetPostings(token string) []Posting {
 func (e SearchEngine) PrintAllIndexedDocuments() {
 	fmt.Println("Indexed Documents:")
 	for _, doc := range e.index.docs {
-		fmt.Println(doc.Path)
+		fmt.Printf("%d, path=%s\n", doc.ID, doc.Path)
 	}
 	fmt.Println("--------------")
 }

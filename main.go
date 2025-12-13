@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mabd-dev/search-engine/internal/engine"
 )
@@ -40,9 +41,9 @@ func main() {
 }
 
 func printPostings(token string, postings []engine.Posting) {
-	fmt.Printf("[%s] exists in %d document(s)", token, len(postings))
-	// for _, posting := range postings {
-	// 	fmt.Printf("docID=%d ", posting.DocID)
-	// }
-	fmt.Println("")
+	fmt.Printf("\033[32m%s\033[0m exists in %d document(s)\n", token, len(postings))
+	for _, posting := range postings {
+		fmt.Printf("  docID=%d freq=%d\n", posting.DocID, posting.Frequency)
+	}
+	fmt.Println(strings.Repeat(" ̶", 30))
 }
