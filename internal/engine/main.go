@@ -30,6 +30,11 @@ func (e *SearchEngine) Index(path string) error {
 			return nil
 		}
 
+		ext := filepath.Ext(p)
+		if !isSupportedFileExtensions(ext) {
+			return nil
+		}
+
 		fInfo, err := d.Info()
 		if err != nil {
 			return err
@@ -37,9 +42,10 @@ func (e *SearchEngine) Index(path string) error {
 
 		docID := len(e.index.docs) + 1
 		doc := Document{
-			ID:   docID,
-			Name: fInfo.Name(),
-			Path: p,
+			ID:            docID,
+			Name:          fInfo.Name(),
+			Path:          p,
+			FileExtension: ext,
 		}
 		if err := e.indexDocument(doc); err != nil {
 			return err
@@ -50,12 +56,16 @@ func (e *SearchEngine) Index(path string) error {
 	})
 }
 
+func isSupportedFileExtensions(extension string) bool {
+	return extension == ".md"
+}
+
 func (e SearchEngine) indexDocument(doc Document) error {
 	bytes, err := os.ReadFile(doc.Path)
 	if err != nil {
 		return err
 	}
-	content := string(bytes)
+	content := decodeFileContent(bytes, doc.FileExtension)
 	tokens := tokenizeDocumentContent(content)
 	tokens = linguisticPreprocessing(tokens)
 	tokens = removeDuplicates(tokens)

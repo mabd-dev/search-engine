@@ -1,9 +1,10 @@
 package engine
 
 type Document struct {
-	ID   int
-	Name string
-	Path string
+	ID            int
+	Name          string
+	Path          string
+	FileExtension string
 }
 
 type Posting struct {
