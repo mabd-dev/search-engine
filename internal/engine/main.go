@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"unicode"
 )
 
 func NewEngine() SearchEngine {
@@ -87,12 +86,6 @@ func (e SearchEngine) indexDocument(doc Document) error {
 	}
 
 	return nil
-}
-
-func cleanToken(word string) string {
-	return strings.TrimFunc(word, func(r rune) bool {
-		return unicode.IsPunct(r) || unicode.IsSymbol(r)
-	})
 }
 
 func getTokensFrequencies(tokens []string) map[string]int {
