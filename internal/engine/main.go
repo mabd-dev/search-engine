@@ -19,6 +19,15 @@ func NewEngine() SearchEngine {
 	}
 }
 
+func (e SearchEngine) ParseQuery(s string) Query {
+	query := Query{}
+	for _, clauseStr := range e.TokeizeBy(s, ",") {
+		terms := e.Tokenize(clauseStr)
+		query.Clauses = append(query.Clauses, Clause{Terms: terms})
+	}
+	return query
+}
+
 // Index walk through path if dir, and index all files in it. Or if path is file index that file only
 func (e *SearchEngine) Index(path string) error {
 	return filepath.WalkDir(path, func(p string, d fs.DirEntry, err error) error {
@@ -66,7 +75,7 @@ func (e SearchEngine) indexDocument(doc Document) error {
 		return err
 	}
 	content := decodeFileContent(bytes, doc.FileExtension)
-	tokens := e.Tokenizer.Tokenize(content)
+	tokens := e.Tokenize(content)
 	tokensFreq := getTokensFrequencies(tokens)
 
 	for token, freq := range tokensFreq {
@@ -111,6 +120,23 @@ func (e SearchEngine) GetDocument(id int) (Document, error) {
 func (e SearchEngine) GetPostings(term string) []Posting {
 	postings := e.index.postings[strings.ToLower(term)]
 	return postings
+}
+
+func (e SearchEngine) GetMergedPostings(terms []string) map[string][]Posting {
+	termToPosting := make(map[string][]Posting, len(terms))
+	docIDFrequency := map[int]int{}
+
+	for _, term := range terms {
+		postings := e.index.postings[strings.ToLower(term)]
+
+		for _, posting := range postings {
+			docIDFrequency[posting.DocID] = docIDFrequency[posting.DocID] + 1
+		}
+
+		termToPosting[term] = postings
+	}
+
+	return intersectPostingsSorted(termToPosting)
 }
 
 func (e SearchEngine) PrintAllIndexedDocuments() {

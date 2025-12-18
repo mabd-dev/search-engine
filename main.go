@@ -33,23 +33,32 @@ func main() {
 		fmt.Print("search query: ")
 		input.Scan()
 
-		query := input.Text()
-		terms := searchEngine.Tokenizer.TokeizeBy(query, ",")
-		for _, term := range terms {
-			postings := searchEngine.GetPostings(term)
+		// read and parse query
+		queryStr := input.Text()
+		query := searchEngine.ParseQuery(queryStr)
 
-			if len(postings) > 0 {
-				fmt.Printf("%s exists in %s document(s)\n", colorText(term), colorInt(len(postings)))
+		for _, clause := range query.Clauses {
+			// get common postings for all [clause.Terms]
+			termToPostings := searchEngine.GetMergedPostings(clause.Terms)
+			joinedTerms := strings.Join(clause.Terms, " ")
 
-				for _, posting := range postings {
-					doc, err := searchEngine.GetDocument(posting.DocID)
-					if err != nil {
-						continue
-					}
-					fmt.Printf("  docID=%s freq=%s path=%s\n", colorInt(posting.DocID), colorInt(posting.Frequency), colorText(doc.Path))
+			// no document that has all [clause.Terms]
+			if len(termToPostings) == 0 {
+				fmt.Printf("[%s] Not found\n", colorText(joinedTerms))
+				continue
+			}
+
+			// Only get first postings. All postings have same docID
+			// Frequency is not the same, but we are not printing it for now, so it's fine
+			postings := termToPostings[clause.Terms[0]]
+
+			fmt.Printf("[%s] exists in %s document(s)\n", colorText(joinedTerms), colorInt(len(postings)))
+			for _, posting := range postings {
+				doc, err := searchEngine.GetDocument(posting.DocID)
+				if err != nil {
+					continue
 				}
-			} else {
-				fmt.Println("Not found")
+				fmt.Printf("  docID=%s path=%s\n", colorInt(posting.DocID), colorText(doc.Path))
 			}
 		}
 	}

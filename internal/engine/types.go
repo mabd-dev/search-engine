@@ -22,3 +22,11 @@ type SearchEngine struct {
 
 	Tokenizer
 }
+
+type Query struct {
+	Clauses []Clause
+}
+
+type Clause struct {
+	Terms []string
+}
