@@ -66,7 +66,7 @@ func (e SearchEngine) indexDocument(doc Document) error {
 		return err
 	}
 	content := decodeFileContent(bytes, doc.FileExtension)
-	tokens := e.tokenizer.Tokenize(content)
+	tokens := e.Tokenizer.Tokenize(content)
 	tokensFreq := getTokensFrequencies(tokens)
 
 	for token, freq := range tokensFreq {

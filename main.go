@@ -33,21 +33,24 @@ func main() {
 		fmt.Print("search query: ")
 		input.Scan()
 
-		token := input.Text()
-		postings := searchEngine.GetPostings(token)
+		query := input.Text()
+		terms := searchEngine.Tokenizer.TokeizeBy(query, ",")
+		for _, term := range terms {
+			postings := searchEngine.GetPostings(term)
 
-		if len(postings) > 0 {
-			fmt.Printf("%s exists in %s document(s)\n", colorText(token), colorInt(len(postings)))
+			if len(postings) > 0 {
+				fmt.Printf("%s exists in %s document(s)\n", colorText(term), colorInt(len(postings)))
 
-			for _, posting := range postings {
-				doc, err := searchEngine.GetDocument(posting.DocID)
-				if err != nil {
-					continue
+				for _, posting := range postings {
+					doc, err := searchEngine.GetDocument(posting.DocID)
+					if err != nil {
+						continue
+					}
+					fmt.Printf("  docID=%s freq=%s path=%s\n", colorInt(posting.DocID), colorInt(posting.Frequency), colorText(doc.Path))
 				}
-				fmt.Printf("  docID=%s freq=%s path=%s\n", colorInt(posting.DocID), colorInt(posting.Frequency), colorText(doc.Path))
+			} else {
+				fmt.Println("Not found")
 			}
-		} else {
-			fmt.Println("Not found")
 		}
 	}
 
