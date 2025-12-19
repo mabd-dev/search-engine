@@ -1,6 +1,9 @@
 package engine
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 type Tokenizer struct {
 }
@@ -30,4 +33,10 @@ func linguisticPreprocessing(tokens []string) []string {
 	}
 
 	return newTokens
+}
+
+func cleanToken(word string) string {
+	return strings.TrimFunc(word, func(r rune) bool {
+		return unicode.IsPunct(r) || unicode.IsSymbol(r)
+	})
 }
